@@ -1,25 +1,95 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, AuthContext } from "./context/AuthContext";
+import { SocketProvider } from "./context/SocketContext";
+// Layout and Pages
+import DashboardLayout from "./components/layout/DashboardLayout";
+import LoginPage from "./components/auth/LoginPage";
+import PrivateRoute from "./components/routing/PrivateRoute";
 
-function App() {
+// --- IMPORT NEW PAGES ---
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+// ------------------------
+
+// Role-specific Dashboards
+// ... (OPHomePage, DoctorHomePage, etc.)
+import OPHomePage from "./pages/OPHomePage";
+import DoctorHomePage from "./pages/DoctorHomePage";
+import PharmacyHomePage from "./pages/PharmacyHomePage";
+import LabHomePage from "./pages/LabHomePage";
+import OfficeHomePage from "./pages/OfficeHomePage";
+import MasterHomePage from "./pages/MasterHomePage";
+
+const AppContent = () => {
+  const { user } = useContext(AuthContext);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      {/* --- ADD PUBLIC ROUTES HERE --- */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      {/* ------------------------------ */}
+
+      {/* All protected routes are nested under the DashboardLayout */}
+      <Route path="/" element={<DashboardLayout />}>
+        {/* Redirect root path to role-specific dashboard or login */}
+        <Route
+          index
+          element={
+            user ? (
+              <Navigate to={`/${user.role.toLowerCase()}`} replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        {/* OP Routes */}
+        <Route element={<PrivateRoute roles={["OP"]} />}>
+          <Route path="op" element={<OPHomePage />} />
+        </Route>
+
+        {/* ... other private routes ... */}
+        <Route element={<PrivateRoute roles={["Doctor"]} />}>
+          <Route path="doctor" element={<DoctorHomePage />} />
+        </Route>
+        <Route element={<PrivateRoute roles={["Pharmacy"]} />}>
+          <Route path="pharmacy" element={<PharmacyHomePage />} />
+        </Route>
+        <Route element={<PrivateRoute roles={["Lab"]} />}>
+          <Route path="lab" element={<LabHomePage />} />
+        </Route>
+        <Route element={<PrivateRoute roles={["Office"]} />}>
+          <Route path="office" element={<OfficeHomePage />} />
+        </Route>
+        <Route element={<PrivateRoute roles={["Master"]} />}>
+          <Route path="master" element={<MasterHomePage />} />
+        </Route>
+      </Route>
+
+      {/* Fallback route for any other path */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
-}
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <SocketProvider>
+          <AppContent />
+        </SocketProvider>
+      </AuthProvider>
+    </Router>
+  );
+};
 
 export default App;
