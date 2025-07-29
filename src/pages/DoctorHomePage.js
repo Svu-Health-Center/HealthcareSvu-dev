@@ -255,18 +255,33 @@ const ConsultationModal = ({ show, onHide, visit, onComplete }) => {
                           <ListGroup variant="flush">
                             {v.LabTests.map((test) => (
                               <ListGroup.Item key={test.id}>
-                                {test.name} -{" "}
-                                {test.ordered_lab_tests.report_url ? (
-                                  <a
-                                    href={test.ordered_lab_tests.report_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    View Report
-                                  </a>
-                                ) : (
-                                  "Report Pending"
-                                )}
+                                <div className="d-flex justify-content-between">
+                                  <span>{test.name}</span>
+                                  <span>
+                                    {test.ordered_lab_tests.report_url ? (
+                                      <>
+                                        {/* --- THIS IS THE FIX --- */}
+                                        <span className="text-muted small me-2">
+                                          (by{" "}
+                                          {test.ordered_lab_tests.performer
+                                            ?.username || "N/A"}
+                                          )
+                                        </span>
+                                        <a
+                                          href={
+                                            test.ordered_lab_tests.report_url
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          View Report
+                                        </a>
+                                      </>
+                                    ) : (
+                                      "Report Pending"
+                                    )}
+                                  </span>
+                                </div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
@@ -623,18 +638,33 @@ const EditConsultationModal = ({ show, onHide, visit, onComplete }) => {
                           <ListGroup variant="flush">
                             {v.LabTests.map((test) => (
                               <ListGroup.Item key={test.id}>
-                                {test.name} -{" "}
-                                {test.ordered_lab_tests.report_url ? (
-                                  <a
-                                    href={test.ordered_lab_tests.report_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    View Report
-                                  </a>
-                                ) : (
-                                  "Report Pending"
-                                )}
+                                <div className="d-flex justify-content-between">
+                                  <span>{test.name}</span>
+                                  <span>
+                                    {test.ordered_lab_tests.report_url ? (
+                                      <>
+                                        {/* --- THIS IS THE FIX --- */}
+                                        <span className="text-muted small me-2">
+                                          (by{" "}
+                                          {test.ordered_lab_tests.performer
+                                            ?.username || "N/A"}
+                                          )
+                                        </span>
+                                        <a
+                                          href={
+                                            test.ordered_lab_tests.report_url
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          View Report
+                                        </a>
+                                      </>
+                                    ) : (
+                                      "Report Pending"
+                                    )}
+                                  </span>
+                                </div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
