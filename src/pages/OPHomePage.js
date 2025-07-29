@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -223,6 +223,11 @@ const FamilyMemberForm = ({ onAddMember }) => {
 };
 
 const OPHomePage = () => {
+  // --- NEW STATE to handle the split designation field ---
+  const [designationPrefix, setDesignationPrefix] = useState("TF");
+  const [designationDetail, setDesignationDetail] = useState("");
+  // --------------------------------------------------------
+
   const initialUniState = {
     name: "",
     guardian: "",
@@ -232,7 +237,7 @@ const OPHomePage = () => {
     aadhar: "",
     dob: "",
     blood_group: "",
-    designation: "Student - Regular",
+    designation: "TF",
     id_number: "",
     date_of_joining: "",
     duration: "",
@@ -263,6 +268,14 @@ const OPHomePage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [validated, setValidated] = useState(false);
+
+  useEffect(() => {
+    const combinedDesignation = `${designationPrefix} - ${designationDetail}`;
+    setUniFormData((prevState) => ({
+      ...prevState,
+      designation: combinedDesignation,
+    }));
+  }, [designationPrefix, designationDetail]);
 
   const handleUniChange = (e) => {
     const { name, value } = e.target;
@@ -323,6 +336,8 @@ const OPHomePage = () => {
       setFamilyMembers([]);
       setNonUniFormData(initialNonUniState);
       setValidated(false);
+      setDesignationPrefix("TF");
+      setDesignationDetail(""); // Reset designation fields
     } catch (err) {
       setError(err.response?.data?.msg || "Registration failed.");
     } finally {
@@ -365,6 +380,16 @@ const OPHomePage = () => {
 
   const bloodGroups = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
   const genders = ["Male", "Female", "Other"];
+  const designationOptions = [
+    { prefix: "TF", label: "Teaching" },
+    { prefix: "NT", label: "Non-Teaching (Regular)" },
+    { prefix: "TS", label: "Timescale" },
+    { prefix: "NMR", label: "NMR (Hostel/NMR)" },
+    { prefix: "AC", label: "Academic Consultant/Coordinator" },
+    { prefix: "OS", label: "Out Sourcing" },
+    { prefix: "CO", label: "Contract/Consolidated" },
+    { prefix: "ST", label: "Students/Research Scholar (PhD)" },
+  ];
 
   return (
     <div>
@@ -599,27 +624,40 @@ const OPHomePage = () => {
                   <hr />
                   <h5>University Details</h5>
                   <Row className="mb-3">
+                    <Col md={5}>
+                      <Form.Group>
+                        <Form.Label>Category*</Form.Label>
+                        <Form.Select
+                          value={designationPrefix}
+                          onChange={(e) => setDesignationPrefix(e.target.value)}
+                        >
+                          {designationOptions.map((opt) => (
+                            <option key={opt.prefix} value={opt.prefix}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                    <Col md={7}>
+                      <Form.Group>
+                        <Form.Label>Specific Designation*</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="e.g., Professor, Lab Assistant, B.Tech..."
+                          value={designationDetail}
+                          onChange={(e) => setDesignationDetail(e.target.value)}
+                          required
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          Please provide the specific designation.
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row className="mb-3">
                     <Form.Group as={Col}>
-                      <Form.Label>Designation*</Form.Label>
-                      <Form.Select
-                        name="designation"
-                        value={uniFormData.designation}
-                        onChange={handleUniChange}
-                      >
-                        <optgroup label="Student">
-                          <option>Student - Regular</option>
-                          <option>Student - Research Scholar</option>
-                        </optgroup>
-                        <optgroup label="Employee">
-                          <option>Employee - Working (Regular)</option>
-                          <option>Employee - Working (Timescale)</option>
-                          <option>Employee - Working (NMR)</option>
-                        </optgroup>
-                        <option>Academic Consultants</option>
-                      </Form.Select>
-                    </Form.Group>
-                    <Form.Group as={Col}>
-                      <Form.Label>Employee Code*</Form.Label>
+                      <Form.Label>ID Number*</Form.Label>
                       <Form.Control
                         type="text"
                         name="id_number"
@@ -639,7 +677,7 @@ const OPHomePage = () => {
                       />
                     </Form.Group>
                     <Form.Group as={Col}>
-                      <Form.Label>Duration(in years)</Form.Label>
+                      <Form.Label>Duration (in years)</Form.Label>
                       <Form.Control
                         type="text"
                         name="duration"
