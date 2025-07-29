@@ -619,7 +619,7 @@ const OPHomePage = () => {
                       </Form.Select>
                     </Form.Group>
                     <Form.Group as={Col}>
-                      <Form.Label>ID Number*</Form.Label>
+                      <Form.Label>Employee Code*</Form.Label>
                       <Form.Control
                         type="text"
                         name="id_number"

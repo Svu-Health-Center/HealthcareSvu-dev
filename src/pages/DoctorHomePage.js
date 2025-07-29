@@ -207,6 +207,17 @@ const ConsultationModal = ({ show, onHide, visit, onComplete }) => {
                         </span>
                       </Accordion.Header>
                       <Accordion.Body>
+                        <div className="d-flex justify-content-between text-muted small mb-2">
+                          <span>
+                            <strong>Doctor:</strong>{" "}
+                            {v.doctor?.username || "N/A"}
+                          </span>
+                          <span>
+                            <strong>OP Desk:</strong>{" "}
+                            {v.creator?.username || "N/A"}
+                          </span>
+                        </div>
+                        <hr className="my-1" />
                         <strong>Full Complaint & Diagnosis:</strong>
                         <p style={{ whiteSpace: "pre-wrap" }}>
                           {v.reason_for_visit}
@@ -215,25 +226,24 @@ const ConsultationModal = ({ show, onHide, visit, onComplete }) => {
                         {v.Medicines.length > 0 ? (
                           <ListGroup variant="flush" className="mb-2">
                             {v.Medicines.map((med) => (
-                              <ListGroup.Item
-                                key={med.id}
-                                className="d-flex justify-content-between align-items-center"
-                              >
-                                <span>
-                                  {med.name} (Qty:{" "}
-                                  {med.prescribed_medicines?.quantity})
-                                </span>
-                                <Badge
-                                  bg={
-                                    med.prescribed_medicines?.dispensed
-                                      ? "success"
-                                      : "secondary"
-                                  }
-                                >
-                                  {med.prescribed_medicines?.dispensed
-                                    ? "Dispensed"
-                                    : "Prescribed"}
-                                </Badge>
+                              <ListGroup.Item key={med.id}>
+                                <div className="d-flex justify-content-between">
+                                  <span>
+                                    {med.name} (Qty:{" "}
+                                    {med.prescribed_medicines?.quantity})
+                                  </span>
+                                  <Badge
+                                    bg={
+                                      med.prescribed_medicines?.dispensed
+                                        ? "success"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {med.prescribed_medicines?.dispensed
+                                      ? `Dispensed by ${med.prescribed_medicines?.dispenser?.username}`
+                                      : "Prescribed"}
+                                  </Badge>
+                                </div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
@@ -565,6 +575,17 @@ const EditConsultationModal = ({ show, onHide, visit, onComplete }) => {
                         </span>
                       </Accordion.Header>
                       <Accordion.Body>
+                        <div className="d-flex justify-content-between text-muted small mb-2">
+                          <span>
+                            <strong>Doctor:</strong>{" "}
+                            {v.doctor?.username || "N/A"}
+                          </span>
+                          <span>
+                            <strong>OP Desk:</strong>{" "}
+                            {v.creator?.username || "N/A"}
+                          </span>
+                        </div>
+                        <hr className="my-1" />
                         <strong>Full Complaint & Diagnosis:</strong>
                         <p style={{ whiteSpace: "pre-wrap" }}>
                           {v.reason_for_visit}
@@ -573,25 +594,24 @@ const EditConsultationModal = ({ show, onHide, visit, onComplete }) => {
                         {v.Medicines.length > 0 ? (
                           <ListGroup variant="flush" className="mb-2">
                             {v.Medicines.map((med) => (
-                              <ListGroup.Item
-                                key={med.id}
-                                className="d-flex justify-content-between align-items-center"
-                              >
-                                <span>
-                                  {med.name} (Qty:{" "}
-                                  {med.prescribed_medicines?.quantity})
-                                </span>
-                                <Badge
-                                  bg={
-                                    med.prescribed_medicines?.dispensed
-                                      ? "success"
-                                      : "secondary"
-                                  }
-                                >
-                                  {med.prescribed_medicines?.dispensed
-                                    ? "Dispensed"
-                                    : "Prescribed"}
-                                </Badge>
+                              <ListGroup.Item key={med.id}>
+                                <div className="d-flex justify-content-between">
+                                  <span>
+                                    {med.name} (Qty:{" "}
+                                    {med.prescribed_medicines?.quantity})
+                                  </span>
+                                  <Badge
+                                    bg={
+                                      med.prescribed_medicines?.dispensed
+                                        ? "success"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {med.prescribed_medicines?.dispensed
+                                      ? `Dispensed by ${med.prescribed_medicines?.dispenser?.username}`
+                                      : "Prescribed"}
+                                  </Badge>
+                                </div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
