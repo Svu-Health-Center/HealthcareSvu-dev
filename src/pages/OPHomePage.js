@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Form,
   Button,
@@ -10,17 +10,288 @@ import {
   Nav,
   Table,
   InputGroup,
+  ListGroup,
+  Modal,
 } from "react-bootstrap";
 import {
   registerOP,
   createDoctorVisit,
   getPatientDetails,
+  getPendingApprovals,
+  approvePatient,
+  getPendingPatientDetails,
 } from "../api/apiService";
 import Spinner from "../components/common/Spinner";
+import { useSocket } from "../context/SocketContext";
 
-// Helper function to enforce numeric-only input
+// --- HELPER FUNCTION ---
 const enforceNumeric = (value) => value.replace(/[^0-9]/g, "");
 
+// --- SUB-COMPONENT: Approval Detail Modal ---
+const ApprovalDetailModal = ({ show, onHide, patientAadhar }) => {
+  const [details, setDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (show && patientAadhar) {
+      const fetchDetails = async () => {
+        setLoading(true);
+        setError("");
+        try {
+          const res = await getPendingPatientDetails(patientAadhar);
+          setDetails(res.data);
+        } catch (err) {
+          setError("Failed to fetch patient details.");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDetails();
+    }
+  }, [show, patientAadhar]);
+
+  return (
+    <Modal show={show} onHide={onHide} size="lg" centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Pending Registration Details</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        {loading && <Spinner />}
+        {error && <Alert variant="danger">{error}</Alert>}
+        {details && (
+          <>
+            <h5>Primary Applicant: {details.primary.name}</h5>
+            <Card className="mb-3">
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <p className="mb-1">
+                      <strong>OP Number:</strong>{" "}
+                      <span className="text-muted">Pending Assignment</span>
+                    </p>
+                    <p className="mb-1">
+                      <strong>Phone:</strong> {details.primary.phone}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Aadhar:</strong> {details.primary.aadhar}
+                    </p>
+                    {/* <p className="mb-1">
+                      <strong>Guardian:</strong> {details.primary.guardian}
+                    </p> */}
+                    <p className="mb-1">
+                      <strong>Gender:</strong> {details.primary.gender}
+                    </p>
+                    <p className="mb-1">
+                      <strong>DOB:</strong>{" "}
+                      {details.primary.dob
+                        ? new Date(details.primary.dob).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p className="mb-0">
+                      <strong>Marital Status:</strong>{" "}
+                      {details.primary.marital_status}
+                    </p>
+                  </Col>
+                  <Col md={6}>
+                    <p className="mb-1">
+                      <strong>Designation:</strong>{" "}
+                      {details.primary.designation}
+                    </p>
+                    <p className="mb-1">
+                      <strong>ID Number:</strong> {details.primary.id_number}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Date of Joining:</strong>{" "}
+                      {details.primary.date_of_joining
+                        ? new Date(
+                            details.primary.date_of_joining
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Duration:</strong> {details.primary.duration}{" "}
+                      years
+                    </p>
+                    <p className="mb-1">
+                      <strong>Emergency Contact:</strong>{" "}
+                      {details.primary.emergency_contact}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Physically Challenged:</strong>{" "}
+                      {details.primary.physical_challenges}
+                    </p>
+                    <p className="mb-0">
+                      <strong>Pre-existing Conditions:</strong>{" "}
+                      {details.primary.pre_existing_conditions}
+                    </p>
+                  </Col>
+                </Row>
+                <hr />
+                <p className="mb-1">
+                  <strong>Address:</strong> {details.primary.address}
+                </p>
+              </Card.Body>
+            </Card>
+            {details.family && details.family.length > 0 && (
+              <>
+                <h5>Pending Family Members</h5>
+                <Table striped bordered hover size="sm">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Relation</th>
+                      <th>Aadhar</th>
+                      <th>Phone</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {details.family.map((member) => (
+                      <tr key={member.id}>
+                        <td>{member.name}</td>
+                        <td>{member.designation.split(" of ")[1] || "N/A"}</td>
+                        <td>{member.aadhar}</td>
+                        <td>{member.phone}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </>
+            )}
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
+// --- SUB-COMPONENT: Approval Queue Tab ---
+const ApprovalQueueTab = () => {
+  const socket = useSocket();
+  const [queue, setQueue] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedPatientAadhar, setSelectedPatientAadhar] = useState(null);
+
+  const fetchQueue = useCallback(async () => {
+    try {
+      const res = await getPendingApprovals();
+      setQueue(res.data);
+    } catch (err) {
+      setError("Failed to fetch pending approvals.");
+      console.error(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchQueue().finally(() => setLoading(false));
+  }, [fetchQueue]);
+  useEffect(() => {
+    if (!socket) return;
+    const handleUpdate = () => fetchQueue();
+    socket.on("pendingApprovalsUpdate", handleUpdate);
+    return () => {
+      socket.off("pendingApprovalsUpdate", handleUpdate);
+    };
+  }, [socket, fetchQueue]);
+
+  const handleApprove = async (aadhar) => {
+    setMessage("");
+    setError("");
+    try {
+      const res = await approvePatient(aadhar);
+      setMessage(res.data.msg);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to approve patient.");
+    }
+  };
+  const handleViewDetails = (aadhar) => {
+    setSelectedPatientAadhar(aadhar);
+    setShowDetailModal(true);
+  };
+
+  if (loading) return <Spinner />;
+
+  return (
+    <>
+      {message && (
+        <Alert variant="success" onClose={() => setMessage("")} dismissible>
+          {message}
+        </Alert>
+      )}
+      {error && (
+        <Alert variant="danger" onClose={() => setError("")} dismissible>
+          {error}
+        </Alert>
+      )}
+      <p className="text-muted">
+        Review and approve new patient registrations submitted through the
+        public portal.
+      </p>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Aadhar</th>
+            <th>Designation</th>
+            <th>Submitted On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {queue.length > 0 ? (
+            queue.map((p) => (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td>{p.aadhar}</td>
+                <td>{p.designation}</td>
+                <td>{new Date(p.createdAt).toLocaleString()}</td>
+                <td>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleViewDetails(p.aadhar)}
+                    className="me-2"
+                  >
+                    View
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="success"
+                    onClick={() => handleApprove(p.aadhar)}
+                  >
+                    Approve
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="text-center">
+                No pending approvals.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
+      <ApprovalDetailModal
+        show={showDetailModal}
+        onHide={() => setShowDetailModal(false)}
+        patientAadhar={selectedPatientAadhar}
+      />
+    </>
+  );
+};
+
+// --- SUB-COMPONENT: Family Member Form ---
 const FamilyMemberForm = ({ onAddMember }) => {
   const initialMemberState = {
     name: "",
@@ -29,6 +300,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
     blood_group: "O+",
     aadhar: "",
     phone: "",
+    email: "",
     gender: "Male",
     physical_challenges: "None",
     pre_existing_conditions: "None",
@@ -52,7 +324,8 @@ const FamilyMemberForm = ({ onAddMember }) => {
       !member.phone ||
       !member.gender ||
       !member.physical_challenges ||
-      !member.pre_existing_conditions
+      !member.pre_existing_conditions ||
+      !member.email
     ) {
       alert("All fields for a family member are mandatory.");
       return;
@@ -71,11 +344,10 @@ const FamilyMemberForm = ({ onAddMember }) => {
   const bloodGroups = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
   const relations = ["Spouse", "Son", "Daughter", "Father", "Mother"];
   const genders = ["Male", "Female", "Other"];
-
   return (
     <Card bg="light" className="p-3 mb-3">
       <Row className="mb-2 g-2">
-        <Col md={4}>
+        <Col md>
           <Form.Group>
             <Form.Label className="small mb-1">Name*</Form.Label>
             <Form.Control
@@ -87,7 +359,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col md>
           <Form.Group>
             <Form.Label className="small mb-1">Relation*</Form.Label>
             <Form.Select
@@ -104,7 +376,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col md>
           <Form.Group>
             <Form.Label className="small mb-1">Gender*</Form.Label>
             <Form.Select
@@ -123,7 +395,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
         </Col>
       </Row>
       <Row className="mb-2 g-2">
-        <Col md={4}>
+        <Col>
           <Form.Group>
             <Form.Label className="small mb-1">Date of Birth*</Form.Label>
             <Form.Control
@@ -135,7 +407,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col>
           <Form.Group>
             <Form.Label className="small mb-1">Blood Group*</Form.Label>
             <Form.Select
@@ -152,7 +424,7 @@ const FamilyMemberForm = ({ onAddMember }) => {
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col>
           <Form.Group>
             <Form.Label className="small mb-1">Aadhar (12 digits)*</Form.Label>
             <Form.Control
@@ -182,6 +454,18 @@ const FamilyMemberForm = ({ onAddMember }) => {
         </Col>
         <Col md={4}>
           <Form.Group>
+            <Form.Label className="small mb-1">Email*</Form.Label>
+            <Form.Control
+              size="sm"
+              type="email"
+              name="email"
+              value={member.email}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Col>
+        <Col md={4}>
+          <Form.Group>
             <Form.Label className="small mb-1">
               Physically Challenged*
             </Form.Label>
@@ -194,7 +478,9 @@ const FamilyMemberForm = ({ onAddMember }) => {
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+      </Row>
+      <Row className="g-2 mt-2">
+        <Col>
           <Form.Group>
             <Form.Label className="small mb-1">
               Pre-existing Conditions*
@@ -222,16 +508,15 @@ const FamilyMemberForm = ({ onAddMember }) => {
   );
 };
 
+// --- MAIN PAGE COMPONENT ---
 const OPHomePage = () => {
-  // --- NEW STATE to handle the split designation field ---
   const [designationPrefix, setDesignationPrefix] = useState("TF");
   const [designationDetail, setDesignationDetail] = useState("");
-  // --------------------------------------------------------
-
   const initialUniState = {
     name: "",
-    guardian: "",
+    // guardian: "",
     phone: "",
+    email: "",
     gender: "Male",
     marital_status: "Single",
     aadhar: "",
@@ -250,8 +535,9 @@ const OPHomePage = () => {
   const [familyMembers, setFamilyMembers] = useState([]);
   const initialNonUniState = {
     name: "",
-    guardian: "",
+    // guardian: "",
     phone: "",
+    email: "",
     gender: "Male",
     aadhar: "",
     blood_group: "",
@@ -276,7 +562,6 @@ const OPHomePage = () => {
       designation: combinedDesignation,
     }));
   }, [designationPrefix, designationDetail]);
-
   const handleUniChange = (e) => {
     const { name, value } = e.target;
     if (["phone", "emergency_contact", "aadhar", "duration"].includes(name)) {
@@ -303,7 +588,6 @@ const OPHomePage = () => {
     setFamilyMembers([...familyMembers, member]);
   const handleRemoveFamilyMember = (index) =>
     setFamilyMembers(familyMembers.filter((_, i) => i !== index));
-
   const handleRegistration = async (event, formData, type) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -330,14 +614,14 @@ const OPHomePage = () => {
             };
       const res = await registerOP(payload);
       setMessage(
-        `Patient registration successful! New OP Number: ${res.data.patient.op_number}. Family members (if any) have also been registered.`
+        `Patient registration successful! New OP Number: ${res.data.patient.op_number}.`
       );
       setUniFormData(initialUniState);
       setFamilyMembers([]);
       setNonUniFormData(initialNonUniState);
       setValidated(false);
       setDesignationPrefix("TF");
-      setDesignationDetail(""); // Reset designation fields
+      setDesignationDetail("");
     } catch (err) {
       setError(err.response?.data?.msg || "Registration failed.");
     } finally {
@@ -359,7 +643,6 @@ const OPHomePage = () => {
       setLoading(false);
     }
   };
-
   const handleVisitCreation = async (e) => {
     e.preventDefault();
     clearMessages();
@@ -405,7 +688,7 @@ const OPHomePage = () => {
         </Alert>
       )}
       <Tab.Container
-        defaultActiveKey="visit"
+        defaultActiveKey="approvals"
         onSelect={() => {
           clearMessages();
           setValidated(false);
@@ -414,6 +697,9 @@ const OPHomePage = () => {
         <Card>
           <Card.Header>
             <Nav variant="pills">
+              <Nav.Item>
+                <Nav.Link eventKey="approvals">Pending Approvals</Nav.Link>
+              </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="visit">Create Doctor Visit</Nav.Link>
               </Nav.Item>
@@ -431,10 +717,10 @@ const OPHomePage = () => {
           </Card.Header>
           <Card.Body>
             <Tab.Content>
+              <Tab.Pane eventKey="approvals">
+                <ApprovalQueueTab />
+              </Tab.Pane>
               <Tab.Pane eventKey="visit">
-                <p className="text-muted">
-                  For patients already registered in the system.
-                </p>
                 <Form onSubmit={handleVisitCreation}>
                   <Row className="align-items-end">
                     <Col md={5}>
@@ -510,15 +796,6 @@ const OPHomePage = () => {
                       />
                     </Form.Group>
                     <Form.Group as={Col} md="4">
-                      <Form.Label>Guardian</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="guardian"
-                        value={uniFormData.guardian}
-                        onChange={handleUniChange}
-                      />
-                    </Form.Group>
-                    <Form.Group as={Col} md="4">
                       <Form.Label>Phone Number* (10 digits)</Form.Label>
                       <Form.Control
                         type="text"
@@ -532,6 +809,16 @@ const OPHomePage = () => {
                       <Form.Control.Feedback type="invalid">
                         Please provide a valid 10-digit number.
                       </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group as={Col} md="4">
+                      <Form.Label>Email*</Form.Label>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={uniFormData.email}
+                        onChange={handleUniChange}
+                        required
+                      />
                     </Form.Group>
                   </Row>
                   <Row className="mb-3">
@@ -644,7 +931,7 @@ const OPHomePage = () => {
                         <Form.Label>Specific Designation*</Form.Label>
                         <Form.Control
                           type="text"
-                          placeholder="e.g., Professor, Lab Assistant, B.Tech..."
+                          placeholder="e.g., Professor, B.Tech ECE..."
                           value={designationDetail}
                           onChange={(e) => setDesignationDetail(e.target.value)}
                           required
@@ -769,7 +1056,6 @@ const OPHomePage = () => {
                   </Button>
                 </Form>
               </Tab.Pane>
-
               <Tab.Pane eventKey="non-university-reg">
                 <Form
                   noValidate
@@ -780,7 +1066,7 @@ const OPHomePage = () => {
                 >
                   <h5>Non-University Patient Registration</h5>
                   <Row className="mb-3">
-                    <Form.Group as={Col} md="6">
+                    <Form.Group as={Col} md="4">
                       <Form.Label>Name*</Form.Label>
                       <Form.Control
                         type="text"
@@ -790,7 +1076,7 @@ const OPHomePage = () => {
                         required
                       />
                     </Form.Group>
-                    <Form.Group as={Col} md="6">
+                    <Form.Group as={Col} md="4">
                       <Form.Label>Phone Number* (10 digits)</Form.Label>
                       <Form.Control
                         type="text"
@@ -805,17 +1091,18 @@ const OPHomePage = () => {
                         Please provide a valid 10-digit number.
                       </Form.Control.Feedback>
                     </Form.Group>
-                  </Row>
-                  <Row className="mb-3">
-                    <Form.Group as={Col} md="6">
-                      <Form.Label>Guardian</Form.Label>
+                    <Form.Group as={Col} md="4">
+                      <Form.Label>Email*</Form.Label>
                       <Form.Control
-                        type="text"
-                        name="guardian"
-                        value={nonUniFormData.guardian}
+                        type="email"
+                        name="email"
+                        value={nonUniFormData.email}
                         onChange={handleNonUniChange}
+                        required
                       />
                     </Form.Group>
+                  </Row>
+                  <Row className="mb-3">
                     <Form.Group as={Col} md="6">
                       <Form.Label>Aadhar Number* (12 digits)</Form.Label>
                       <Form.Control
@@ -832,8 +1119,6 @@ const OPHomePage = () => {
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Row>
-
-                  {/* --- THIS IS THE FIX for Non-University Gender --- */}
                   <Row className="mb-3">
                     <Form.Group as={Col} md="4">
                       <Form.Label>Gender*</Form.Label>
@@ -859,7 +1144,7 @@ const OPHomePage = () => {
                         onChange={handleNonUniChange}
                       />
                     </Form.Group>
-                    <Form.Group as={Col} md="4}">
+                    <Form.Group as={Col} md="4">
                       <Form.Label>Blood Group</Form.Label>
                       <Form.Select
                         name="blood_group"
@@ -875,7 +1160,6 @@ const OPHomePage = () => {
                       </Form.Select>
                     </Form.Group>
                   </Row>
-
                   <Form.Group className="mb-3">
                     <Form.Label>Reason for Visit*</Form.Label>
                     <Form.Control

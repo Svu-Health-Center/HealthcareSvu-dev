@@ -1,5 +1,9 @@
 import api from "./api";
 
+// --- PUBLIC API ---
+export const publicRegisterOP = (patientData) =>
+  api.post("/public/register", patientData);
+
 // --- Master API ---
 export const getAllStaff = () => api.get("/master/staff");
 export const addStaff = (staffData) => api.post("/master/staff", staffData);
@@ -14,6 +18,11 @@ export const registerOP = (patientData) =>
   api.post("/op/register", patientData);
 export const createDoctorVisit = (visitData) =>
   api.post("/op/create-visit", visitData);
+export const getPendingApprovals = () => api.get("/op/pending-approvals");
+export const approvePatient = (aadhar) =>
+  api.post(`/op/approve-patient/${aadhar}`);
+export const getPendingPatientDetails = (aadhar) =>
+  api.get(`/op/pending-patient/${aadhar}`);
 
 // --- Doctor API ---
 export const getRegisteredOPs = () => api.get("/doctor/registered-ops");
@@ -39,13 +48,13 @@ export const uploadLabReport = (orderedLabTestId, reportUrl) =>
 // --- Office API ---
 export const addMedicineToStock = (medicineData) =>
   api.post("/office/add-medicine", medicineData);
-export const getDailyVisitReport = () =>
-  api.get("/office/reports/daily-visits"); // Updated route
-export const getDailyMedicineReport = () =>
-  api.get("/office/reports/daily-medicines"); // New
-export const getDailyLabTestReport = () =>
-  api.get("/office/reports/daily-lab-tests"); // New
-export const getAllMedicines = () => api.get("/office/medicines"); // Assuming you add this endpoint
-export const getAllLabTests = () => api.get("/office/lab-tests"); // Assuming you add this endpoint
 export const addLabTest = (labTestData) =>
   api.post("/office/add-lab-test", labTestData);
+export const getAllMedicines = () => api.get("/office/medicines");
+export const getAllLabTests = () => api.get("/office/lab-tests");
+export const getDailyVisitReport = () =>
+  api.get("/office/reports/daily-visits");
+export const getDailyMedicineReport = () =>
+  api.get("/office/reports/daily-medicines");
+export const getDailyLabTestReport = () =>
+  api.get("/office/reports/daily-lab-tests");

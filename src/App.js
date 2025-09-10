@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import PublicRegistrationPage from "./pages/PublicRegistrationPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -35,6 +36,7 @@ const AppContent = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      <Route path="/public-registration" element={<PublicRegistrationPage />} />
       {/* ------------------------------ */}
 
       {/* All protected routes are nested under the DashboardLayout */}
