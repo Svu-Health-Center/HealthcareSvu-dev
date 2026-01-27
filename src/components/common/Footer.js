@@ -12,7 +12,12 @@ const Footer = () => {
           This application is developed for the Health Center affiliated with
           Sri Venkateswara University.
         </span>
-        <span className="text-muted d-block">Developed by Susheel Kumar</span>
+        <span className="text-muted d-block">
+          Developed by Susheel Kumar, Dept. of CSE, SVUCE
+        </span>
+        <span className="text-muted d-block">
+          Batch: 2022–2026 | Roll No: 12206036
+        </span>
       </Container>
     </footer>
   );
