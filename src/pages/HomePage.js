@@ -16,7 +16,12 @@ const HomePage = () => {
             <Navbar bg="white" expand="lg" className="main-navbar">
                 <Container>
                     <Link to="/" className="brand-wrapper">
-                        {/* Placeholder for Logo - if exists use img tag */}
+                        <img
+                            src="/SVU.png"
+                            alt="SVU Logo"
+                            className="brand-logo"
+                            style={{ height: '50px', marginRight: '15px' }}
+                        />
                         <div className="d-flex flex-column brand-text">
                             <h4>SVU HEALTH CENTER</h4>
                             <span>Sri Venkateswara University, Tirupati</span>
