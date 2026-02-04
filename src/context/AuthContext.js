@@ -54,7 +54,10 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem("token", data.token);
     sessionStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
-    navigate(`/${data.user.role.toLowerCase()}`);
+    // Use setTimeout to ensure state update completes before navigation
+    setTimeout(() => {
+      navigate(`/${data.user.role.toLowerCase()}`, { replace: true });
+    }, 0);
   };
 
   if (loading) {
