@@ -332,7 +332,7 @@ const PublicRegistrationPage = () => {
         <Col md={10} lg={8}>
           <Card>
             <Card.Header as="h3" className="text-center bg-primary text-white">
-              SVU Health Center - New Patient Pre-Registration
+              SVU MEDICARE - New Patient Pre-Registration
             </Card.Header>
             <Card.Body className="p-4">
               <p className="text-muted text-center">

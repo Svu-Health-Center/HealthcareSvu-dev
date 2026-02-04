@@ -35,7 +35,7 @@ const LoginPage = () => {
           <Card.Body className="p-5">
             {/* ... title and other form elements ... */}
             <div className="text-center mb-4">
-              <h2 className="mb-1">SVU Health Center</h2>
+              <h2 className="mb-1">SVU MEDICARE</h2>
               <p className="text-muted">Please sign in to continue</p>
             </div>
 
