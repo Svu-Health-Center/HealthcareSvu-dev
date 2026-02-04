@@ -330,3 +330,251 @@ body {
     text-align: center;
     font-size: 0.9rem;
 }
+
+/* ========================================
+   RESPONSIVE STYLES
+   ======================================== */
+
+/* Tablet and below (max-width: 991px) */
+@media (max-width: 991px) {
+    /* Navigation */
+    .brand-text h4 {
+        font-size: 1.2rem;
+    }
+    
+    .brand-text span {
+        font-size: 0.8rem;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px 0;
+    }
+    
+    .btn-login-custom {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+    
+    /* Hero Section */
+    .hero-slider {
+        height: 400px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-hero {
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Stats Section */
+    .stats-section {
+        margin-top: -30px;
+        padding: 30px 0;
+    }
+    
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 15px 0;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    /* Sections */
+    .section-wrapper {
+        padding: 50px 0;
+    }
+    
+    .section-head {
+        margin-bottom: 30px;
+    }
+    
+    /* About Section */
+    .about-img-box {
+        margin-bottom: 30px;
+    }
+    
+    /* Services */
+    .service-card {
+        margin-bottom: 20px;
+    }
+}
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+    /* Navigation */
+    .main-navbar {
+        padding: 5px 0;
+    }
+    
+    .brand-logo-img {
+        height: 45px;
+    }
+    
+    .brand-text h4 {
+        font-size: 1rem;
+    }
+    
+    .brand-text span {
+        font-size: 0.7rem;
+    }
+    
+    /* Hero Section */
+    .hero-slider {
+        height: 350px;
+        padding: 20px 0;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+    
+    .hero-content p {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+    
+    .btn-hero {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    /* Stats Section */
+    .stats-section {
+        margin-top: -20px;
+        padding: 20px 15px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    /* Sections */
+    .section-wrapper {
+        padding: 40px 0;
+    }
+    
+    .section-head h2 {
+        font-size: 1.5rem;
+    }
+    
+    /* About Section */
+    .about-text {
+        font-size: 1rem;
+    }
+    
+    .about-text ul {
+        padding-left: 20px;
+    }
+    
+    /* Services */
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .service-card h4 {
+        font-size: 1.1rem;
+    }
+    
+    .service-card p {
+        font-size: 0.9rem;
+    }
+    
+    /* Footer */
+    .main-footer {
+        padding: 40px 0 0;
+    }
+    
+    .footer-widget {
+        margin-bottom: 30px;
+    }
+    
+    .footer-bottom {
+        margin-top: 30px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Small Mobile (max-width: 575px) */
+@media (max-width: 575px) {
+    /* Hero Section */
+    .hero-slider {
+        height: 300px;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hero-content p {
+        font-size: 0.85rem;
+    }
+    
+    .btn-hero {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+    
+    /* Stats */
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    /* Sections */
+    .section-head h2 {
+        font-size: 1.3rem;
+    }
+    
+    .section-head h2::after {
+        width: 40px;
+        height: 3px;
+    }
+}
+
+/* Landscape Mobile (max-height: 500px and orientation: landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero-slider {
+        height: 100vh;
+        min-height: 400px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-content p {
+        font-size: 1rem;
+    }
+}
