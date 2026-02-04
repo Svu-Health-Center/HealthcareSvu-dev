@@ -16,6 +16,7 @@ import PrivateRoute from "./components/routing/PrivateRoute";
 // --- IMPORT NEW PAGES ---
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import HomePage from "./pages/HomePage";
 // ------------------------
 
 // Role-specific Dashboards
@@ -33,6 +34,7 @@ const AppContent = () => {
   return (
     <Routes>
       {/* --- ADD PUBLIC ROUTES HERE --- */}
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
@@ -40,18 +42,9 @@ const AppContent = () => {
       {/* ------------------------------ */}
 
       {/* All protected routes are nested under the DashboardLayout */}
-      <Route path="/" element={<DashboardLayout />}>
+      <Route element={<DashboardLayout />}>
         {/* Redirect root path to role-specific dashboard or login */}
-        <Route
-          index
-          element={
-            user ? (
-              <Navigate to={`/${user.role.toLowerCase()}`} replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+
 
         {/* OP Routes */}
         <Route element={<PrivateRoute roles={["OP"]} />}>
