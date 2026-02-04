@@ -51,9 +51,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     const { data } = await api.post("/auth/login", { username, password });
+    console.log("Login response:", data);
     sessionStorage.setItem("token", data.token);
     sessionStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
+    console.log("User set, navigating to:", `/${data.user.role.toLowerCase()}`);
     // Use setTimeout to ensure state update completes before navigation
     setTimeout(() => {
       navigate(`/${data.user.role.toLowerCase()}`, { replace: true });
