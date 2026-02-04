@@ -23,7 +23,8 @@ export const SocketProvider = ({ children }) => {
         setSocket(null);
       }
     }
-  }, [user, socket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
