@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import PublicRegistrationPage from "./pages/PublicRegistrationPage";
 import {
   BrowserRouter as Router,
@@ -6,7 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider, AuthContext } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
 // Layout and Pages
 import DashboardLayout from "./components/layout/DashboardLayout";
