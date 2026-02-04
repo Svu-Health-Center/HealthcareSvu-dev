@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Navbar, Nav, Container, Button, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 

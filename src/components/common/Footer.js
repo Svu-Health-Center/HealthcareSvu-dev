@@ -5,7 +5,6 @@ const Footer = ({ theme = "light" }) => {
   const isDark = theme === "dark";
   const bgClass = isDark ? "bg-transparent" : "bg-light"; // Homepage handles its own background
   const textClass = isDark ? "text-white-50" : "text-muted";
-  const borderClass = isDark ? "border-secondary" : "border-top";
 
   return (
     <footer className={`footer ${bgClass} mt-auto py-3 ${isDark ? "" : "border-top"}`}>

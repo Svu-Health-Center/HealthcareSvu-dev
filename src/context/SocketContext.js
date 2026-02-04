@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }) => {
         setSocket(null);
       }
     }
-  }, [user]);
+  }, [user, socket]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>

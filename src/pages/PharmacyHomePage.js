@@ -50,7 +50,7 @@ const PrescriptionModal = ({ show, onHide, visit, onIssue }) => {
               className="d-flex justify-content-between align-items-center"
               variant={
                 !med.prescribed_medicines.dispensed &&
-                med.prescribed_medicines.quantity > med.stock
+                  med.prescribed_medicines.quantity > med.stock
                   ? "danger"
                   : ""
               }
@@ -189,14 +189,13 @@ const InventoryTab = () => {
   const socket = useSocket();
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const fetchInventory = useCallback(async () => {
     try {
       const res = await getAllMedicines();
       setMedicines(res.data);
     } catch (err) {
-      setError("Failed to fetch medicine inventory.");
+      console.error("Failed to fetch medicine inventory:", err);
     }
   }, []);
   useEffect(() => {
@@ -242,8 +241,8 @@ const InventoryTab = () => {
                   med.totalStock <= 10
                     ? "table-danger"
                     : med.totalStock <= 50
-                    ? "table-warning"
-                    : ""
+                      ? "table-warning"
+                      : ""
                 }
               >
                 <td>{med.id}</td>

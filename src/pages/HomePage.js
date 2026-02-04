@@ -1,13 +1,12 @@
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Navbar, Nav } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { AuthContext } from "../context/AuthContext";
 import Footer from "../components/common/Footer";
 import "./HomePage.css";
 
 const HomePage = () => {
     const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
 
     return (
         <div className="home-wrapper">

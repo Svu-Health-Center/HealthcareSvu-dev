@@ -10,7 +10,6 @@ import {
   Table,
 } from "react-bootstrap";
 import { publicRegisterOP } from "../api/apiService";
-import Spinner from "../components/common/Spinner";
 
 // Helper function to enforce numeric-only input
 const enforceNumeric = (value) => value.replace(/[^0-9]/g, "");
@@ -307,7 +306,7 @@ const PublicRegistrationPage = () => {
     } catch (err) {
       setError(
         err.response?.data?.msg ||
-          "Registration failed. Please check your details and try again."
+        "Registration failed. Please check your details and try again."
       );
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
 import api from "../api/api";
 const FRONTEND_URL = "http://localhost:3000";
@@ -9,7 +9,6 @@ const ForgotPasswordPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

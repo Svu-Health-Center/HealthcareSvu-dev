@@ -10,7 +10,6 @@ import {
   Nav,
   Table,
   InputGroup,
-  ListGroup,
   Modal,
 } from "react-bootstrap";
 import {
@@ -105,8 +104,8 @@ const ApprovalDetailModal = ({ show, onHide, patientAadhar }) => {
                       <strong>Date of Joining:</strong>{" "}
                       {details.primary.date_of_joining
                         ? new Date(
-                            details.primary.date_of_joining
-                          ).toLocaleDateString()
+                          details.primary.date_of_joining
+                        ).toLocaleDateString()
                         : "N/A"}
                     </p>
                     <p className="mb-1">
@@ -602,16 +601,16 @@ const OPHomePage = () => {
       const payload =
         type === "University"
           ? {
-              ...formData,
-              family_details: familyMembers,
-              patient_type: "University Member",
-              is_employee: true,
-            }
+            ...formData,
+            family_details: familyMembers,
+            patient_type: "University Member",
+            is_employee: true,
+          }
           : {
-              ...formData,
-              patient_type: "Non-University Member",
-              is_employee: false,
-            };
+            ...formData,
+            patient_type: "Non-University Member",
+            is_employee: false,
+          };
       const res = await registerOP(payload);
       setMessage(
         `Patient registration successful! New OP Number: ${res.data.patient.op_number}.`

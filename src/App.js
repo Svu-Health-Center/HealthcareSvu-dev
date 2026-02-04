@@ -29,7 +29,6 @@ import OfficeHomePage from "./pages/OfficeHomePage";
 import MasterHomePage from "./pages/MasterHomePage";
 
 const AppContent = () => {
-  const { user } = useContext(AuthContext);
 
   return (
     <Routes>
